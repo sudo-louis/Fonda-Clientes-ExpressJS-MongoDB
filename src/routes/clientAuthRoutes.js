@@ -1,9 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const upload = require('../middleware/uploadMiddleware');
 const { registerClient, loginClient, logoutClient } = require('../controllers/clientAuthController');
+const uploadMiddleware = require('../middleware/uploadMiddleware');
 
-router.post('/register', upload.single('photo'), registerClient);
+const router = express.Router();
+
+router.post('/register', uploadMiddleware.single('photo'), registerClient);
 router.post('/login', loginClient);
 router.post('/logout', logoutClient);
 
