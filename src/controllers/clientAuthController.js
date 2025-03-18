@@ -23,15 +23,24 @@ exports.registerClient = async (req, res) => {
 exports.loginClient = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const client = await Client.findOne({ email });
-        if (!client || !(await client.comparePassword(password))) {
-            return res.status(400).json({ message: 'Correo o contraseña incorrectos' });
+
+        const client = await Client.findOne({ email: email.toLowerCase() });
+        if (!client) {
+            return res.status(401).json({ message: "Correo inválido" });
         }
 
-        const token = jwt.sign({ id: client._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        const isMatch = await client.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Contraseña inválida" });
+        }
+
+        const token = jwt.sign({ id: client._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+        res.json({ token });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
+        console.log(error);
     }
 };
 
